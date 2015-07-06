@@ -5,6 +5,6 @@ gem 'grape-kaminari'
 gem 'rack-cors'
 
 gem 'nokogiri'
-gem 'sqlite3'
+gem 'pg'
 gem 'json'
 gem 'sequel'

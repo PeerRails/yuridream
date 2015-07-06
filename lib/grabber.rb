@@ -1,7 +1,7 @@
 require 'nokogiri'
 require 'uri'
 require 'open-uri'
-require "sqlite3"
+require "sequel"
 require "json"
 
 class Grab
@@ -9,7 +9,7 @@ class Grab
   def initialize(url=nil, db=nil, path="images")
     @path = path
     @url = check_url(url)
-    @db = db || SQLite3::Database.new("test.db")
+    @db = Sequel.connect(ENV["YURIDREAMS_DB_URL"])
     list_all
     check_db
   end
@@ -20,10 +20,10 @@ class Grab
   end
 
   def check_db
-    rows = @db.execute <<-SQL
+    rows = @db.run <<-SQL
       CREATE TABLE IF NOT EXISTS images (
 
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id serial PRIMARY KEY,
         url TEXT,
         path TEXT,
         name TEXT
@@ -43,10 +43,10 @@ class Grab
 
   def insert_to_db(url, path)
     count = 0
-    @db.execute( "select * from images where url = \"#{url}\"" ) do |row|
+    @db.run( "select * from images where url = \"#{url}\"" ) do |row|
       count += 1
     end
-    @db.execute "insert into images (url, path, name) values ( \"#{url}\", \"#{path}\", \"#{path.split("/").last}\" )" if count == 0
+    @db.run "insert into images (url, path, name) values ( \"#{url}\", \"#{path}\", \"#{path.split("/").last}\" )" if count == 0
   end
 
   def links

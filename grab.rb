@@ -1,6 +1,6 @@
 require "./lib/grabber"
 
-# http://130.211.73.158/static/images.json
+# http://deepdream.pictures/imagejson
 
 host = ARGV[0] || ""
 
