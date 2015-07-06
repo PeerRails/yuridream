@@ -1,5 +1,6 @@
 require "grape"
 require "grape-kaminari"
+require './lib/ZipFileGenerator'
 require "./lib/Image"
 
 module Images
@@ -36,7 +37,21 @@ module Images
       get do
         Image.where(id: params[:id])
       end
-      
+
+    end
+
+    resource :archive do
+
+      desc "Give url to zip archive and create if it doesnt exist"
+      get do 
+        path = Dir.pwd + "/archives"
+        azip = Dir.glob(File.join(path, '*.*')).max { |a,b| File.ctime(a) <=> File.ctime(b) }
+        unless azip.nil?
+          {zip: "archives/#{azip.split("/").last}"}
+        else
+          {error: "no archives yet"}
+        end
+      end
     end
 
   end

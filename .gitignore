@@ -36,3 +36,4 @@ build/
 .rvmrc
 *.db
 images/*.jpg
+archives/*.zip

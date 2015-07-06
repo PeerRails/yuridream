@@ -3,6 +3,8 @@ require 'uri'
 require 'open-uri'
 require "sequel"
 require "json"
+require 'digest'
+require './lib/ZipFileGenerator'
 #https://storage.googleapis.com/dreamscape-bucket1/output/a0244a11-ad52-4610-8fc4-f2322f4b4659.jpg
 class Grab
 
@@ -27,7 +29,8 @@ class Grab
         id serial PRIMARY KEY,
         url TEXT,
         path TEXT,
-        name TEXT
+        name TEXT,
+        md5 TEXT
       );
     SQL
   end
@@ -38,13 +41,26 @@ class Grab
       open(path, 'wb') do |file|
         file << open(url).read
       end
-      insert_to_db(url, path)
-    end    
+      md5 = Digest::MD5.file(path).hexdigest 
+      insert_to_db(url, path, md5)
+    end
+    make_zip    
   end
 
-  def insert_to_db(url, path)
+  def make_zip
+    folder = "#{Dir.pwd}/images"
+    count = Dir[File.join(folder, '**', '*')].count { |file| File.file?(file) }
+    azip = "#{Dir.pwd}/archives/yuridream-#{count}.zip"
+    unless File.exist?(azip)
+          zf = ZipFileGenerator.new(folder, azip)
+          zf.write()
+    end
+  end
+
+  def insert_to_db(url, path, md5)
     cuerl = @db[:images].where(url: url).all
-    @db.run "insert into images (url, path, name) values ( \'#{url}\', \'#{path}\', \'#{path.split("/").last.split(".").first}\' )" if cuerl.empty?
+    mdrl = @db[:images].where(md5: md5).all
+    @db.run "insert into images (url, path, name, md5) values ( \'#{url}\', \'#{path}\', \'#{path.split("/").last.split(".").first}\', \'#{md5}\' )" if cuerl.empty? && mdrl.empty?
   end
 
   def links
