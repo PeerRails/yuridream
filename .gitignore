@@ -37,3 +37,4 @@ build/
 *.db
 images/*.jpg
 archives/*.zip
+*.pid
