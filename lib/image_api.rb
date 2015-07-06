@@ -15,7 +15,7 @@ module Images
       desc "Return a list of images"
       paginate per_page: 20, offset: 0
       get do 
-        images = Image.reverse(:id).all
+        images = Image.reverse(:id).naked.all
         paginate(Kaminari.paginate_array(images))
       end
 
