@@ -53,7 +53,7 @@ class Grab
     azip = "#{Dir.pwd}/archives/yuridream-last.zip"
     zf = ZipFileGenerator.new(folder, azip)
     zf.write()
-    FileUtils.chown 'yuridream', 'www-data', azip
+    FileUtils.chown 'www-data', 'www-data', azip
   end
 
   def insert_to_db(url, path, md5)
