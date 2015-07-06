@@ -50,11 +50,9 @@ class Grab
   def make_zip
     folder = "#{Dir.pwd}/images"
     count = Dir[File.join(folder, '**', '*')].count { |file| File.file?(file) }
-    azip = "#{Dir.pwd}/archives/yuridream-#{count}.zip"
-    unless File.exist?(azip)
-          zf = ZipFileGenerator.new(folder, azip)
-          zf.write()
-    end
+    azip = "#{Dir.pwd}/archives/yuridream-last.zip"
+    zf = ZipFileGenerator.new(folder, azip)
+    zf.write()
   end
 
   def insert_to_db(url, path, md5)
