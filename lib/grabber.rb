@@ -3,24 +3,25 @@ require 'uri'
 require 'open-uri'
 require "sequel"
 require "json"
-
+#https://storage.googleapis.com/dreamscape-bucket1/output/a0244a11-ad52-4610-8fc4-f2322f4b4659.jpg
 class Grab
 
   def initialize(url=nil, db=nil, path="images")
     @path = path
     @url = check_url(url)
-    @db = Sequel.connect(ENV["YURIDREAMS_DB_URL"])
-    list_all
     check_db
+    list_all
   end
 
   def list_all
-    json = JSON.parse(open(@url).read).to_s
-    @links = URI.extract json
+    json = JSON.parse(open(@url).read)
+    @links = json.map {|j| "https://storage.googleapis.com/dreamscape-bucket1/#{j["src"]}"}
   end
 
   def check_db
-    rows = @db.run <<-SQL
+    connect = ENV["YURIDREAMS_DB_URL"] || 'postgres://yuri:123456@localhost/yuridreams'
+    @db = Sequel.connect(connect)
+    @db.run <<-SQL
       CREATE TABLE IF NOT EXISTS images (
 
         id serial PRIMARY KEY,
@@ -42,11 +43,8 @@ class Grab
   end
 
   def insert_to_db(url, path)
-    count = 0
-    @db.run( "select * from images where url = \"#{url}\"" ) do |row|
-      count += 1
-    end
-    @db.run "insert into images (url, path, name) values ( \"#{url}\", \"#{path}\", \"#{path.split("/").last}\" )" if count == 0
+    cuerl = @db[:images].where(url: url).all
+    @db.run "insert into images (url, path, name) values ( \'#{url}\', \'#{path}\', \'#{path.split("/").last.split(".").first}\' )" if cuerl.empty?
   end
 
   def links

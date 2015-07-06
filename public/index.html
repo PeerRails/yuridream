@@ -1,9 +1,11 @@
-<html>
+﻿<!DOCTYPE html>
 <head>
+    <title>ЮРИЙ ГЛУБОКО СПИТ И ВИДИТ БЕЗ ГЛАЗ</title>
     <script src="jquery-2.1.3.min.js"></script>
     <script src="bootstrap.min.js"></script>
     <script src="jquery.bootpag.min.js"></script>
     <link rel="stylesheet" href="bootstrap.min.css">
+    <link rel="stylesheet" href="lightbox.css">
     <style type="text/css">
       .modal-dialog {
             width: 100%;
@@ -23,6 +25,12 @@
 <body>
     <div class="container">
       <div class="row">
+        <div class="page-header">
+          <h1>Сны Юрия <small>мы ебанулись. From <a href="http://deepdream.pictures">deepdream.pictures</a></small></h1>
+          Это маленькое зеркало проекта <a href="http://twitter.com/turbojedi">@turbojedi</a>
+        </div>
+      </div>
+      <div class="row">
         <div class="col-md-9">
           <div id="page-selection-top"></div>
           <div id="content"></div>
@@ -30,35 +38,17 @@
         </div>
       </div>
     </div>
-    <div class="modal fade" id="ImageModal">
-      <div class="modal-lg">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title">Image</h4>
-          </div>
-          <div class="modal-body">
-            <img id="image-on" src="" height="auto" width="auto"></div>
-          </div>
-        </div><!-- /.modal-content -->
-      </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
     <script>
         var InsertImages = function (images) {
           $("#content").html("")
-          for (var i = images.length - 1; i >= 0; i--) {
-            $("#content").append('<a href="#/image/'+images[i].id+'"><img id="image-"'+images[i].id+' data-id="'+images[i].id+'" src="'+images[i].path+'" class="img-thumbnail" width="140" height="140" onclick=\'OpenImage("'+images[i].path+'")\' >')
+          for (var i = 0; i < images.length; i++) {
+            $("#content").append('<a href="'+images[i].path+'" data-lightbox="tuurbo" data-title="'+images[i].name+'" > <img id="image-'+images[i].id+'" data-id="'+images[i].id+'" src="'+images[i].path+'" class="img-thumbnail" width="140" height="140" > </a>')
           };
         }
         var LoadImages = function (page, rows) {
           $.get("api/images?page="+page, function (data) {
-            rows(data)
+            rows(data);
           })
-        };
-        var OpenImage = function (path) {
-            $('#image-on').attr("src", path).promise().done(function () {
-              $('#ImageModal').modal();
-            })
         };
         // init bootpag
         $('#page-selection-top, #page-selection-bot').bootpag({
@@ -79,6 +69,7 @@
               total: count.pages
             })
           })
+          $.getScript("lightbox.min.js");
         })
     </script>
 </body>
