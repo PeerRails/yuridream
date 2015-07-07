@@ -44,7 +44,7 @@ class Grab
       md5 = Digest::MD5.file(path).hexdigest 
       insert_to_db(url, path, md5)
     end
-    make_zip    
+    #make_zip    
   end
 
   def make_zip
