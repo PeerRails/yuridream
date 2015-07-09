@@ -4,6 +4,8 @@ require 'open-uri'
 require "sequel"
 require "json"
 require 'digest'
+require 'yajl'
+require 'json-compare'
 require './lib/ZipFileGenerator'
 #https://storage.googleapis.com/dreamscape-bucket1/output/a0244a11-ad52-4610-8fc4-f2322f4b4659.jpg
 class Grab
@@ -11,13 +13,42 @@ class Grab
   def initialize(url=nil, db=nil, path="images")
     @path = path
     @url = check_url(url)
+    @last = nil
+    @current = "#{Dir.pwd}/json/last.json"
     check_db
-    list_all
+    #list_all
+    @links = get_links
   end
 
-  def list_all
-    json = JSON.parse(open(@url).read)
-    @links = json.map {|j| "https://storage.googleapis.com/dreamscape-bucket1/#{j["src"]}"}
+  def dl_json
+    if File.exists?(@current)
+      @last = "#{Dir.pwd}/json/#{DateTime.now.strftime("%Y%m%d%H%M%S")}.json"
+      File.rename(@current, @last)
+    end
+    open(@current, 'wb') do |file|
+      file << open(@url).read
+    end
+  end
+
+  def get_links
+    dl_json
+    unless @last.nil?
+      json1, json2 = Yajl::Parser.parse(File.new(@last, "r")), Yajl::Parser.parse(File.new(@current, "r"))
+      res = JsonCompare.get_diff(json1,json2) 
+    else
+      res = Yajl::Parser.parse(File.new(@current, "r"))
+    end
+    src = []
+    if res.empty?
+      return src
+    else
+      res.each do |j|
+        j[1].each do |k,v|
+          src.push "https://storage.googleapis.com/dreamscape-bucket1/"+v["src"] unless v["src"].nil? 
+        end 
+      end
+      return src
+    end 
   end
 
   def check_db
@@ -36,13 +67,15 @@ class Grab
   end
 
   def download_from_list(list=@links)
-    list.each do |url|
-      path = "#{@path}/#{url.split("/").last}"
-      open(path, 'wb') do |file|
-        file << open(url).read
+    unless list.empty?
+      list.each do |url|
+        path = "#{@path}/#{url.split("/").last}"
+        open(path, 'wb') do |file|
+          file << open(url).read
+        end
+        md5 = Digest::MD5.file(path).hexdigest 
+        insert_to_db(url, path, md5)
       end
-      md5 = Digest::MD5.file(path).hexdigest 
-      insert_to_db(url, path, md5)
     end
     #make_zip    
   end

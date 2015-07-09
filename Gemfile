@@ -9,3 +9,5 @@ gem 'pg'
 gem 'json'
 gem 'sequel'
 gem 'rubyzip', '>= 1.0.0'
+gem "json-compare"
+gem 'yajl-ruby', require: 'yajl'
