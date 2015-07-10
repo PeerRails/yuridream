@@ -28,6 +28,7 @@
               <div class="card-content white-text">
                 <span class="card-title">Юра, мы ебанулись</span>
                 <p>Это маленькое зеркало проекта <a href="http://deepdream.pictures">DeepDream.Pictures</a> от @<a href="http://twitter.com/turbojedi">turbojedi</a>.</p>
+                <p>Картинки можете загрузить на юрином сервисе.</p>
               </div>
             </div>
           </div>
@@ -53,7 +54,7 @@
           var InsertImages = function (images) {
             $("#content").html("")
             for (var i = 0; i < images.length; i++) {
-              $("#content").append('<div class="col s3"><div class="card-panel"><img class="materialboxed" width="140" height="140" src="'+images[i].path+'"><a href="'+images[i].path+'" target="_blank">Скачать </a> </div></div>')
+              $("#content").append('<div class="col s3"><div class="card-panel"><img class="materialboxed" width="140" height="140" src="'+images[i].path+'"></div></div>')
               //$("#content").append('<a href="'+images[i].path+'" data-title="'+images[i].name+'" > <img id="image-'+images[i].id+'" data-id="'+images[i].id+'" src="'+images[i].path+'" class="img-thumbnail" width="140" height="140" > </a>')
             };
             $('.materialboxed').materialbox();
