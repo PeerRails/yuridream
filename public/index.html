@@ -51,9 +51,10 @@
           var InsertImages = function (images) {
             $("#content").html("")
             for (var i = 0; i < images.length; i++) {
-              $("#content").append('<div class="col s3"><div class="card-panel"><img class="materialboxed" width="140" height="140" src="'+images[i].path+'"><br/> <a href="'+images[i].path+'" target="_blank">Скачать </a> </div></div>')
+              $("#content").append('<div class="col s3"><div class="card-panel"><img class="materialboxed" width="140" height="140" src="'+images[i].path+'"><a href="'+images[i].path+'" target="_blank">Скачать </a> </div></div>')
               //$("#content").append('<a href="'+images[i].path+'" data-title="'+images[i].name+'" > <img id="image-'+images[i].id+'" data-id="'+images[i].id+'" src="'+images[i].path+'" class="img-thumbnail" width="140" height="140" > </a>')
             };
+            $('.materialboxed').materialbox();
           }
           var LoadImages = function (page, rows) {
             $.get("api/images?page="+page, function (data) {
@@ -66,12 +67,11 @@
           }).on("page", function(event, /* page number here */ num){
                LoadImages(num, function (data) {
                  InsertImages(data);
-               })
+               });
           });
           $( document ).ready(function () {
             LoadImages(1, function (images) {
               InsertImages(images);
-              $('.materialboxed').materialbox();
             });
             $.get("api/images/pages", function (count) {
              console.log(count.pages);
