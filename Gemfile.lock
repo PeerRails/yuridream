@@ -103,6 +103,3 @@ DEPENDENCIES
   rubyzip (>= 1.0.0)
   sequel
   yajl-ruby
-
-BUNDLED WITH
-   1.10.5
