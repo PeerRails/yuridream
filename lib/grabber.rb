@@ -42,8 +42,7 @@ class Grab
       src = res.map {|j| "https://storage.googleapis.com/dreamscape-bucket1/"+j["src"]}
     end
 
-    if res.class == "Hash"
-      raise res.class.inspect
+    if res.class == Hash
       res.each do |j|
         j[1].each do |k,v|
           src.push "https://storage.googleapis.com/dreamscape-bucket1/"+v["src"] unless v["src"].nil? 
