@@ -32,23 +32,25 @@ class Grab
 
   def get_links
     dl_json
+    res = []
+    src = []
     unless @last.nil?
       json1, json2 = Yajl::Parser.parse(File.new(@last, "r")), Yajl::Parser.parse(File.new(@current, "r"))
       res = JsonCompare.get_diff(json1,json2) 
     else
       res = Yajl::Parser.parse(File.new(@current, "r"))
+      src = res.map {|j| "https://storage.googleapis.com/dreamscape-bucket1/"+j["src"]}
     end
-    src = []
-    if res.empty?
-      return src
-    else
+
+    if res.class == "Hash"
+      raise res.class.inspect
       res.each do |j|
         j[1].each do |k,v|
           src.push "https://storage.googleapis.com/dreamscape-bucket1/"+v["src"] unless v["src"].nil? 
         end 
       end
-      return src
     end 
+    return src
   end
 
   def check_db
@@ -69,12 +71,18 @@ class Grab
   def download_from_list(list=@links)
     unless list.empty?
       list.each do |url|
-        path = "#{@path}/#{url.split("/").last}"
-        open(path, 'wb') do |file|
-          file << open(url).read
+        cuerl = @db[:images].where(url: url).all
+        if cuerl.empty?
+          path = "#{@path}/#{url.split("/").last}"
+          open(path, 'wb') do |file|
+            file << open(url).read
+          end
+          md5 = Digest::MD5.file(path).hexdigest
+          mdrl = @db[:images].where(md5: md5).all 
+          if  mdrl.empty?
+            insert_to_db(url, path, md5)
+          end
         end
-        md5 = Digest::MD5.file(path).hexdigest 
-        insert_to_db(url, path, md5)
       end
     end
     #make_zip    
@@ -90,9 +98,7 @@ class Grab
   end
 
   def insert_to_db(url, path, md5)
-    cuerl = @db[:images].where(url: url).all
-    mdrl = @db[:images].where(md5: md5).all
-    @db.run "insert into images (url, path, name, md5) values ( \'#{url}\', \'#{path}\', \'#{path.split("/").last.split(".").first}\', \'#{md5}\' )" if cuerl.empty? && mdrl.empty?
+    @db.run "insert into images (url, path, name, md5) values ( \'#{url}\', \'#{path}\', \'#{path.split("/").last.split(".").first}\', \'#{md5}\' )"
   end
 
   def links

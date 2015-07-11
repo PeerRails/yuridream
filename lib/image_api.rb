@@ -25,6 +25,12 @@ module Images
         {pages: pages + 1}
       end
 
+      desc "Return a count of images"
+      get :count do 
+        pages = Image.count(:id)     
+        {images: pages}
+      end
+
     end
 
     resource :image do
